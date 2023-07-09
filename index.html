@@ -194,54 +194,56 @@
 
 
 
-    <script>
-        let tg= window.Telegram.WebApp;
-        let buy = document.getElementById("buy");
-        let order = document.getElementById("order");
-        tg.expand();
+ <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    let tg = window.Telegram.Webapp;
+    let buy = document.getElementById("buy");
+    let order = document.getElementById("order");
+    let main = document.getElementById("main");
+    let form = document.getElementById("form");
+    let userName = document.getElementById("user_name");
 
-        buy.addEventListener("click",() => {
-           document.getElementById("main").style.display = "none";
-           document.getElementById("form").style.display = "block";
-           document.getElementById("user_name").value =tg.initDataUnsafe.user.first_name + " " + tg.initDataUnsafe.user.last_name
-        });
+    tg.expand();
 
+    buy.addEventListener("click", () => {
+        main.style.display = "none";
+        form.style.display = "block";
+        userName.value = tg.initDataUnsafe.user.first_name + " " + tg.initDataUnsafe.user.last_name;
+    });
 
-        order.addEventListener("click", (event) => {
-    event.preventDefault();
-    document.getElementById("error").innerText = "";
-    let name = document.getElementById("user_name").value;
-    let email = document.getElementById("user_email").value;
-    let phone = document.getElementById("user_phone").value;
+    order.addEventListener("click", (event) => {
+        event.preventDefault();
+        document.getElementById("error").innerText = "";
+        let name = document.getElementById("user_name").value;
+        let email = document.getElementById("user_email").value;
+        let phone = document.getElementById("user_phone").value;
 
-    if (name.length < 10) {
-        document.getElementById("error").innerText = "Имя должно содержать не менее 10 символов";
-        return;
-    }
+        if (name.length < 10) {
+            document.getElementById("error").innerText = "Имя должно содержать не менее 10 символов";
+            return;
+        }
 
-    if (!email.includes("@")) {
-        document.getElementById("error").innerText = "Некорректный адрес электронной почты";
-        return;
-    }
+        if (!email.includes("@")) {
+            document.getElementById("error").innerText = "Некорректный адрес электронной почты";
+            return;
+        }
 
-    if (!/^\d{8}$/.test(phone)) {
-        document.getElementById("error").innerText = "Некорректный номер телефона";
-        return;
-    }
+        if (!/^\d{8}$/.test(phone)) {
+            document.getElementById("error").innerText = "Некорректный номер телефона";
+            return;
+        }
 
-    let data = {
-        name: name,
-        email: email,
-        phone: phone
-    };
+        let data = {
+            name: name,
+            email: email,
+            phone: phone
+        };
 
-    tg.sendData(JSON.stringify(data));
-    tg.close();
-});
+        tg.sendData(JSON.stringify(data));
+        tg.close();
+    });
+</script>
 
-
-
-    </script>
 
 </body>
 </html>
