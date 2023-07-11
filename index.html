@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+
+    <style>
+       /* Overall Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #0088cc;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            background-color: #1e90ff;
+            padding: 10px;
+        }
+
+        .nav-item {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .nav-item a {
+            color: #fff;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .nav-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* Product Styles */
+        .product {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .product .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .product .description {
+            margin-top: 10px;
+            color: #555;
+        }
+
+        .product .price {
+            font-weight: bold;
+            color: #00a;
+            margin-top: 10px;
+        }
+
+        .product .image {
+            max-width: 100%;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #0088cc;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* Form Styles */
+        #form {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #form input {
+            display: block;
+            margin-bottom: 10px;
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* Button Styles */
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #1e90ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="main">
+            <h1>Онлайн магазин</h1>
+            <img src="https://izšuvums.lv/wp-content/uploads/2021/02/1izsuvums.png">
+            <p>Обконченные вышивки бомжа в Букултов, высранные китайские майки с вашим ебаным лого</p>
+            <button id="buy" class="button">Купить</button>
+        </div>
+        <form id="form">
+            <input type="text" placeholder="Имя" id="user_name">
+            <input type="text" placeholder="Телефон" id="user_phone">
+            <input type="text" placeholder="Емайл" id="user_email">
+            <button id="order" class="button">Оформить</button>
+        </form>
+        <p id="error"></p>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let tg = window.Telegram.WebApp;
+        let buy = document.getElementById("buy");
+        let order = document.getElementById("order");
+        let mainSection = document.getElementById("main");
+        let formSection = document.getElementById("form");
+
+        buy.addEventListener("click", () => {
+            mainSection.style.display = "none";
+            formSection.style.display = "block";
+            document.getElementById("user_name").value = tg.initDataUnsafe.user.firstName + " " + tg.initDataUnsafe.user.lastName;
+        });
+
+        order.addEventListener("click", () => {
+            event.preventDefault();
+
+            document.getElementById("error").innerText = '';
+            let name = document.getElementById("user_name").value;
+            let email = document.getElementById("user_email").value;
+            let phone = document.getElementById("user_phone").value;
+
+            if (name.trim() === '' || email.trim() === '' || phone.trim() === '') {
+            document.getElementById("error").innerText = "Впишите требуюмую информацию, а то по ебалу получишь";
+            return;
+            }
+
+            if (name.length < 4) {
+                document.getElementById("error").innerText = "Имя должно содержать не менее 4 символов";
+                return;
+            }
+
+            if (!email.includes("@")) {
+                document.getElementById("error").innerText = "Некорректный адрес электронной почты";
+                return;
+            }
+
+            if (!/^\d{8}$/.test(phone)) {
+                document.getElementById("error").innerText = "Некорректный номер телефона";
+                return;
+            }
+
+            let data = {
+                name: name,
+                email: email,
+                phone: phone
+            };
+
+            tg.sendData(JSON.stringify(data));
+            tg.close();
+        });
+    </script>
+</body>
+</html>
