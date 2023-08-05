@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+
+    <style>
+        /* Your CSS styles go here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        /* Other CSS styles */
+        /* ... */
+
+        /* Button Styles */
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #1e90ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">Онлайн магазин</h1>
+        </div>
+        <div class="navbar">
+            <div class="nav-item"><a href="#">Home</a></div>
+            <div class="nav-item"><a href="#">Products</a></div>
+            <div class="nav-item"><a href="#">Contact</a></div>
+        </div>
+        <div id="main">
+            <h1>Онлайн магазин</h1>
+            <img src="https://izšuvums.lv/wp-content/uploads/2021/02/1izsuvums.png">
+            <p>Обконченные вышивки бомжа в Букултов, высранные китайские майки с вашим ебаным лого</p>
+            <button id="buy" class="button">Купить</button>
+        </div>
+        <form id="form" style="display: none;">
+            <input type="text" placeholder="Имя" id="name">
+            <input type="text" placeholder="Телефон" id="phone">
+            <input type="text" placeholder="Емайл" id="email">
+            <button id="order" class="button">Оформить</button>
+        </form>
+        <p id="error"></p>
+        <div class="footer">
+            <p>© 2023 Онлайн магазин. All rights reserved.</p>
+        </div>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let tg = window.Telegram.WebApp;
+        let buy = document.getElementById("buy");
+        let order = document.getElementById("order");
+        let mainSection = document.getElementById("main");
+        let formSection = document.getElementById("form");
+
+        buy.addEventListener("click", () => {
+            mainSection.style.display = "none";
+            formSection.style.display = "block";
+            document.getElementById("name").value = tg.initDataUnsafe.user.firstName + " " + tg.initDataUnsafe.user.lastName;
+        });
+
+        order.addEventListener("click", () => {
+            event.preventDefault();
+
+            document.getElementById("error").innerText = '';
+            let name = document.getElementById("name").value;
+            let phone = document.getElementById("phone").value;
+            let email = document.getElementById("email").value;
+
+            if (name.trim() === '' || email.trim() === '' || phone.trim() === '') {
+                document.getElementById("error").innerText = "Впишите требуюмую информацию, а то по ебалу получишь";
+                return;
+            }
+
+            if (name.length < 4) {
+                document.getElementById("error").innerText = "Имя должно содержать не менее 4 символов";
+                return;
+            }
+
+            if (!email.includes("@")) {
+                document.getElementById("error").innerText = "Некорректный адрес электронной почты";
+                return;
+            }
+
+            if (!/^\d{8}$/.test(phone)) {
+                document.getElementById("error").innerText = "Некорректный номер телефона";
+                return;
+            }
+
+            let data = {
+                name: name,
+                phone: phone,
+                email: email
+            };
+
+            let botToken = '<6260618205:AAHq9SVoN3_jZMysYy3xP5hJjIzbtcaXuVU>'; // Replace with your actual Telegram bot token
+            let chatId = 407499278; // Replace with your actual chat ID
+
+            let message = `Имя: ${name}\nТелефон: ${phone}\nЕмайл: ${email}`;
+
+            fetch(`https://api.telegram.org/bot${6260618205:AAHq9SVoN3_jZMysYy3xP5hJjIzbtcaXuVU}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
+                .then((response) => {
+                    if (response.ok) {
+                        console.log("Form data sent to Telegram bot successfully");
+                        tg.close(); // Close the Telegram web app after successful data submission
+                    } else {
+                        console.error("Error sending form data to Telegram bot");
+                        document.getElementById("error").innerText = "An error occurred while submitting the data. Please try again later.";
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById("error").innerText = "An error occurred while submitting the data. Please try again later.";
+                });
+        });
+    </script>
+</body>
+</html>
