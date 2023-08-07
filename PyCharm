@@ -5,7 +5,7 @@ from mysql.connector import Error
 import logging
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot('6260618205:AAHq9SVoN3_jZMysYy3xP5hJjIzbtcaXuVU')
+bot = Bot('')
 dp = Dispatcher(bot)
 
 
@@ -34,7 +34,7 @@ async def process_text(message: types.Message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
             types.KeyboardButton('Открыть веб страницу', web_app=WebAppInfo(url='https://SurfingLover.github.io')))
-        await message.answer('Привет долбоёб! Хочешь затариться?', reply_markup=markup)
+        await message.answer('Привет! Хочешь затариться?', reply_markup=markup)
     elif message.text == 'Купить':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton('Имя'))
