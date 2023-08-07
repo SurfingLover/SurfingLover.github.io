@@ -1,0 +1,105 @@
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.types.web_app_info import WebAppInfo
+import mysql.connector
+from mysql.connector import Error
+import logging
+
+logging.basicConfig(level=logging.INFO)
+bot = Bot('6260618205:AAHq9SVoN3_jZMysYy3xP5hJjIzbtcaXuVU')
+dp = Dispatcher(bot)
+
+
+def create_connection(host_name, user_name, user_password, database_name):
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host=host_name,
+            user=user_name,
+            passwd=user_password,
+            database=database_name,
+            collation='utf8mb4_general_ci'  # Set the collation to utf8mb4_general_ci
+        )
+        print("Connection to MySQL DB successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
+
+    return connection
+
+@dp.message_handler(content_types=['text'])
+async def process_text(message: types.Message):
+    print('Received message:', str(message))
+    print('Message text:', message.text)
+
+    if message.text == '/start':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(
+            types.KeyboardButton('Открыть веб страницу', web_app=WebAppInfo(url='https://SurfingLover.github.io')))
+        await message.answer('Привет долбоёб! Хочешь затариться?', reply_markup=markup)
+    elif message.text == 'Купить':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(types.KeyboardButton('Имя'))
+        markup.add(types.KeyboardButton('Телефон'))
+        markup.add(types.KeyboardButton('Емайл'))
+        await message.reply('Fill in the details', reply_markup=markup)
+    else:
+        print('Checking for user info...')
+        if message.text.startswith('Имя: '):
+            print('Processing user info...')
+            raw_message_text = message.text.replace('\\n', '\n')
+            lines = raw_message_text.split('\n')
+            name = lines[0].split(': ')[1]
+            phone = lines[1].split(': ')[1]
+            email = lines[2].split(': ')[1]
+            insert_customer_data(name=name, phone=phone, email=email)
+            print('User info processed:', name, phone, email)
+        else:
+            print('Message did not match expected format.')
+
+
+def insert_customer_data(name, phone, email):
+    connection = None
+    cursor = None
+    try:
+        connection = create_connection("localhost", "root", "", "telegram_bot_name_phone_email")
+        cursor = connection.cursor()
+        query = "INSERT INTO customers (name, phone, email) VALUES (%s, %s, %s)"
+        data = (name, phone, email)
+        print(f"Data to be inserted: {data}")
+        cursor.execute(query, data)
+        connection.commit()
+        print("Data inserted successfully")
+
+    except Error as e:
+        print(f"The error '{e}' occurred")
+
+    except Exception as ex:
+        print(f"An unexpected error occurred: {ex}")
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if connection is not None and connection.is_connected():
+            connection.close()
+
+
+if __name__ == '__main__':
+    connection = create_connection("localhost", "root", "", "telegram_bot_name_phone_email")
+
+    if connection is not None:
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS customers (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            phone VARCHAR(8) NOT NULL,
+            email VARCHAR(50) NOT NULL
+        )
+        """
+
+        cursor = connection.cursor()
+        cursor.execute(create_table_query)
+        connection.commit()
+        connection.close()
+
+        executor.start_polling(dp)
+    else:
+        print("Unable to establish a connection to the MySQL server.")
